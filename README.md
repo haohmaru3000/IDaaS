@@ -1,0 +1,1 @@
+docker run -d --name mysql-8.0.40 --privileged=true -e MYSQL_ROOT_PASSWORD="admin" -e MYSQL_USER="thomas" -e MYSQL_PASSWORD="12345678" -e MYSQL_DATABASE="identity_service" -p 3306:3306 mysql:8.0.40-debian --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
