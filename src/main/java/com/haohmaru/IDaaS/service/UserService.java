@@ -18,6 +18,9 @@ public class UserService {
         // Map User info from Request into User model
         User user = new User();
 
+        if (userRepository.existsByUsername(request.getUsername()))
+            throw new RuntimeException("Cannot create this User, it's existed !");
+
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
         user.setFirstName(request.getFirstName());
@@ -47,6 +50,7 @@ public class UserService {
     }
 
     public User getUser(String id) {
+        // If there are huge number of services -> cost efforts to handle exception like this below.
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
