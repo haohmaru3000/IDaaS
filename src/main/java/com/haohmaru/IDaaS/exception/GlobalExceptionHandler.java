@@ -10,21 +10,22 @@ import java.util.Objects;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    // Define all of exception's Types
-    @ExceptionHandler(value = RuntimeException.class)
+    // Fallback exception to catch all exceptions not fallen into any kind of exception below
+    @ExceptionHandler(value = Exception.class)
     ResponseEntity<ApiResponse<String>> handlingRuntimeException(RuntimeException exception) {
-        ApiResponse<String> apiResponse = new ApiResponse<String>();
+        ApiResponse<String> apiResponse = new ApiResponse<>();
 
-        apiResponse.setCode(1001);
-        apiResponse.setMessage(exception.getMessage());
+        apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
+        apiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
 
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
+    // Handling our Custom Exception
     @ExceptionHandler(value = AppException.class)
     ResponseEntity<ApiResponse<String>> handlingAppException(AppException exception) {
         ErrorCode errorCode = exception.getErrorCode();
-        ApiResponse<String> apiResponse = new ApiResponse<String>();
+        ApiResponse<String> apiResponse = new ApiResponse<>();
 
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
@@ -32,8 +33,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
+    // Handling Exception from Validation process that got failed
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    ResponseEntity<String> handlingValidation(MethodArgumentNotValidException exception) {
-        return ResponseEntity.badRequest().body(Objects.requireNonNull(exception.getFieldError()).getDefaultMessage());
+    ResponseEntity<ApiResponse<String>> handlingValidation(MethodArgumentNotValidException exception) {
+        String enumKey = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
+        ErrorCode errorCode = ErrorCode.valueOf(enumKey);
+
+        ApiResponse<String> apiResponse = new ApiResponse<>();
+        apiResponse.setCode(errorCode.getCode());
+        apiResponse.setMessage(errorCode.getMessage());
+
+        return ResponseEntity.badRequest().body(apiResponse);
     }
 }
