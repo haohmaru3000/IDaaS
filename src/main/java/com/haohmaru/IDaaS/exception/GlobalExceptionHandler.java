@@ -1,5 +1,6 @@
 package com.haohmaru.IDaaS.exception;
 
+import com.haohmaru.IDaaS.dto.request.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -11,8 +12,13 @@ import java.util.Objects;
 public class GlobalExceptionHandler {
     // Define all of exception's Types
     @ExceptionHandler(value = RuntimeException.class)
-    ResponseEntity<String> handlingRuntimeException(RuntimeException exception) {
-        return ResponseEntity.badRequest().body(exception.getMessage());
+    ResponseEntity<ApiResponse<String>> handlingRuntimeException(RuntimeException exception) {
+        ApiResponse<String> apiResponse = new ApiResponse<String>();
+
+        apiResponse.setCode(1001);
+        apiResponse.setMessage(exception.getMessage());
+
+        return ResponseEntity.badRequest().body(apiResponse);
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
